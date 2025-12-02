@@ -1,0 +1,47 @@
+:root {
+    --color-bg: #050608;
+    --color-bg-elevated: #111827;
+    --color-border-subtle: #1f2933;
+    --color-accent: #3b82f6;
+    --color-accent-soft: rgba(59, 130, 246, 0.15);
+    --color-text: #e5e7eb;
+    --color-text-muted: #9ca3af;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.app-sidebar {
+    background-color: #020617;
+    border-right: 1px solid var(--color-border-subtle);
+}
+
+.app-topbar {
+    background-color: #020617;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.card {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+}
+
+.btn-primary {
+    background-color: var(--color-accent);
+    color: #f9fafb;
+}
+
+.btn-ghost {
+    background-color: transparent;
+    color: var(--color-text-muted);
+}
+
+.xp-bar {
+    background-color: #020617;
+}
+
+.xp-bar-fill {
+    background-color: var(--color-accent);
+}

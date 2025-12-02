@@ -1,0 +1,32 @@
+#app {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* App shell placeholders */
+
+.app-shell {
+    display: flex;
+    width: 100%;
+}
+
+.app-sidebar {
+    width: 260px;
+    min-height: 100vh;
+}
+
+.app-main {
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-topbar {
+    height: 56px;
+}
+
+.app-content {
+    flex: 1;
+    padding: 1.5rem;
+}

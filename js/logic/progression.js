@@ -7,18 +7,14 @@
     return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   }
 
-  // Streak rules:
-  // - Streak is per-day, not per-task.
-  // - If user completed >=1 task on a day, then:
-  //     next time the date changes, streak += 1.
-  // - If user completed 0 tasks on a day, next time the user is active,
-  //     streak resets to 0.
-  // - Completing/failing tasks never directly changes streak.
+  // Daily rollover:
+  // - Only responsibility: detect missed days and reset streak if needed.
+  // - No increment happens here; increment is on first task of the day.
   function rollOverIfNeeded() {
     const s = PatternLab.state.get();
     const today = todayISO();
 
-    // First ever run: just set date, do not change streak.
+    // First ever run
     if (!s.lastActiveDate) {
       PatternLab.state.update({
         lastActiveDate: today,
@@ -29,16 +25,15 @@
       return;
     }
 
+    // Same calendar day, nothing to do
     if (s.lastActiveDate === today) {
-      // Same calendar day, nothing to do.
       return;
     }
 
-    // Date has advanced: evaluate yesterday.
-    let newStreak;
-    if ((s.tasksCompletedToday || 0) >= 1) {
-      newStreak = (s.streak || 0) + 1;
-    } else {
+    // New day:
+    // If yesterday had 0 tasks, streak is broken.
+    let newStreak = s.streak || 0;
+    if ((s.tasksCompletedToday || 0) === 0) {
       newStreak = 0;
     }
 
@@ -70,42 +65,43 @@
     });
   }
 
-  // Public API for a task being completed (quiz, lesson, pattern task, etc.).
-  // success: boolean (passed / failed)
-  // xpFull: XP when success = true
-  // xpPartial: XP when success = false
+  // Register a task (quiz, lesson, pattern task, etc.).
+  // success: boolean
+  // xpFull, xpPartial: numbers
   //
-  // Streak:
-  // - Any completed task counts towards "tasksCompletedToday" (success or not).
-  // - Streak is handled only by date rollover (see rollOverIfNeeded).
+  // - Any task (success or fail) counts for the daily streak.
+  // - First task of a given day increments streak by +1.
   function registerTaskResult(opts) {
     const options = opts || {};
     const success = !!options.success;
     const xpFull = Number.isFinite(options.xpFull) ? options.xpFull : 50;
     const xpPartial = Number.isFinite(options.xpPartial) ? options.xpPartial : 20;
 
-    // Apply potential date rollover first.
+    // 1) Handle day change / streak break
     rollOverIfNeeded();
 
-    const xpGain = success ? xpFull : xpPartial;
-    if (xpGain > 0) {
-      addXP(xpGain);
-    }
+    // 2) Snapshot after rollover
+    const before = PatternLab.state.get();
+    const firstTaskToday = (before.tasksCompletedToday || 0) === 0;
 
-    // Count this as a completed task for the day (regardless of success).
-    const s = PatternLab.state.get();
-    const newCount = (s.tasksCompletedToday || 0) + 1;
+    // 3) XP
+    const xpGain = success ? xpFull : xpPartial;
+    if (xpGain > 0) addXP(xpGain);
+
+    // 4) Update daily counters + streak increment on first task
+    const afterXP = PatternLab.state.get();
+    const newTasksToday = (afterXP.tasksCompletedToday || 0) + 1;
+    const baseStreak = afterXP.streak || 0;
+    const newStreak = baseStreak + (firstTaskToday ? 1 : 0);
+    const best = Math.max(afterXP.bestStreak || 0, newStreak);
 
     PatternLab.state.update({
-      tasksCompletedToday: newCount
+      tasksCompletedToday: newTasksToday,
+      streak: newStreak,
+      bestStreak: best
     });
   }
 
-  // Module unlock check, based on static structure definition.
-  // structure.modules: {
-  //   moduleId: { requiredLevel?: number, requiredModules?: string[] }
-  // }
-  // structure.progress: { [moduleId]: boolean } // optional external structure
   function isModuleUnlocked(moduleId, structure) {
     const s = PatternLab.state.get();
     const meta = structure.modules[moduleId];
@@ -123,7 +119,6 @@
     return true;
   }
 
-  // Mark a single lesson finished inside a module.
   function completeLesson(moduleId, lessonId) {
     const store = PatternLab.state.get();
     const progress = store.lessonProgress || {};
@@ -133,8 +128,7 @@
     PatternLab.state.update({ lessonProgress: progress });
   }
 
-  // Should be called once on app open to apply daily rollover without
-  // requiring a task completion.
+  // Should be called once on app open
   function onAppOpen() {
     rollOverIfNeeded();
   }

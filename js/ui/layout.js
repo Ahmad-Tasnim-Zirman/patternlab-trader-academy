@@ -68,7 +68,7 @@
                 <div class="topbar-center">
                   <div class="xp-meta">
                     <span>XP progression</span>
-                    <span>${s.xp} / ${s.xpToNext}</span>
+                    <span id="xp-meta-value">${s.xp} / ${s.xpToNext}</span>
                   </div>
                   <div class="xp-bar">
                     <div class="xp-bar-fill" id="xp-fill"></div>
@@ -77,7 +77,7 @@
                 </div>
                 <div class="topbar-right">
                   <span class="tier-badge">Beginner</span>
-                  <span class="level-pill">Level ${s.level}</span>
+                  <span class="level-pill" id="level-pill">Level ${s.level}</span>
                   <div class="streak-chip">
                     <span>${s.streak} streak</span>
                   </div>
@@ -105,14 +105,31 @@
     },
 
     updateXpBar() {
+      const s = PatternLab.state.get();
       const fill = document.getElementById("xp-fill");
       const spark = document.getElementById("xp-spark");
-      if (!fill) return;
-      const pct = xpPercent();
-      fill.style.width = pct + "%";
-      if (spark) {
-        spark.style.left = Math.max(0, Math.min(100, pct)) + "%";
-        spark.style.opacity = pct > 0 ? 0.5 : 0.0;
+      const label = document.getElementById("xp-meta-value");
+      const levelEl = document.getElementById("level-pill");
+
+      let pct = 0;
+      if (s && s.xpToNext) {
+        pct = Math.max(0, Math.min(100, (s.xp / s.xpToNext) * 100));
+      }
+
+      if (fill) {
+        fill.style.width = pct + "%";
+        if (spark) {
+          spark.style.left = pct + "%";
+          spark.style.opacity = pct > 0 ? 0.5 : 0.0;
+        }
+      }
+
+      if (label && s) {
+        label.textContent = s.xp + " / " + s.xpToNext;
+      }
+
+      if (levelEl && s) {
+        levelEl.textContent = "Level " + s.level;
       }
     },
 
@@ -146,32 +163,27 @@
       const target = document.getElementById("app-content");
       if (!target) return;
 
-      let html = "";
+      // Map route names to modules
+      const map = {
+        dashboard: PatternLab.dashboard,
+        learn: PatternLab.learn,
+        "chart-lab": PatternLab.chartLab,
+        chartLab: PatternLab.chartLab, // tolerate both
+        profile: PatternLab.profile,
+        quiz: PatternLab.quiz
+      };
 
-      switch (name) {
-        case "dashboard":
-          html = PatternLab.dashboard.render();
-          break;
-        case "learn":
-          html = PatternLab.learn.render();
-          break;
-        case "chart-lab":
-          html = PatternLab.chartLab.render();
-          break;
-        case "profile":
-          html = PatternLab.profile.render();
-          break;
-        case "quiz":
-          html = PatternLab.quiz.render();
-          break;
-        default:
-          html = PatternLab.dashboard.render();
+      let module = map[name];
+      if (!module || typeof module.render !== "function") {
+        module = PatternLab.dashboard;
+        name = "dashboard";
       }
 
-      target.innerHTML = html;
+      target.innerHTML = module.render();
 
       this.bindNavClicks();
-      if (name === "quiz" && PatternLab.quiz.bindEvents) {
+
+      if (name === "quiz" && PatternLab.quiz && typeof PatternLab.quiz.bindEvents === "function") {
         PatternLab.quiz.bindEvents();
       }
     },

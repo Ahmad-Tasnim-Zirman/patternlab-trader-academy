@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PatternLab Trader Academy - Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #020617;
+      color: #e5e7eb;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Layout */
+
+    #app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .app-shell {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .app-sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #0f172a, #020617 40%);
+      border-right: 1px solid #1f2933;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      color: #f9fafb;
+    }
+
+    .sidebar-logo span {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.18);
+      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .sidebar-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.5rem;
+      color: #9ca3af;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+    }
+
+    .sidebar-link span.icon {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .sidebar-link.active,
+    .sidebar-link:hover {
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      transform: translateX(1px);
+    }
+
+    .sidebar-foot {
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid #111827;
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+
+    .sidebar-foot-cta {
+      font-size: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .sidebar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.3);
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+
+    .app-main {
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.6), #020617 55%);
+    }
+
+    .app-topbar {
+      height: 60px;
+      border-bottom: 1px solid #1f2933;
+      background: rgba(2,6,23,0.9);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      gap: 1rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .tier-badge {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.12);
+      color: #7dd3fc;
+      border: 1px solid rgba(56,189,248,0.6);
+    }
+
+    .level-pill {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: #e5e7eb;
+    }
+
+    .topbar-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      max-width: 420px;
+    }
+
+    .xp-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .xp-bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: radial-gradient(circle at left, #0b1220, #020617);
+      border: 1px solid #111827;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #22c55e, #a3e635, #eab308);
+      transition: width 0.2s ease-out;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .streak-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(248,113,113,0.06);
+      border: 1px solid rgba(248,113,113,0.45);
+      color: #fecaca;
+    }
+
+    .streak-icon {
+      font-size: 0.78rem;
+    }
+
+    .user-pill {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid #111827;
+      color: #e5e7eb;
+      font-size: 0.78rem;
+    }
+
+    .app-content {
+      flex: 1;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .content-inner {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* Components */
+
+    .card {
+      border-radius: 0.9rem;
+      padding: 1.1rem 1.2rem;
+      background: radial-gradient(circle at top left, rgba(30,64,175,0.15), #020617);
+      border: 1px solid #111827;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .btn {
+      border: none;
+      padding: 0.55rem 0.9rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      color: #f9fafb;
+      box-shadow: 0 12px 30px rgba(37,99,235,0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(37,99,235,0.55);
+    }
+
+    .btn-ghost {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      border: 1px solid #111827;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15,23,42,0.95);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(55,65,81,0.9);
+      color: #9ca3af;
+    }
+
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 0.4rem;
+    }
+
+    .module-item {
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.5rem;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid #111827;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .module-item span.label {
+      color: #e5e7eb;
+    }
+
+    .module-item span.meta {
+      color: #9ca3af;
+      font-size: 0.74rem;
+    }
+
+    .chip-small {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.12);
+      color: #7dd3fc;
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+
+    /* Responsive */
+
+    @media (max-width: 960px) {
+      .app-sidebar {
+        display: none;
+      }
+
+      #app {
+        min-height: 100vh;
+      }
+
+      .app-main {
+        min-height: 100vh;
+      }
+
+      .topbar-center {
+        max-width: none;
+      }
+
+      .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        padding: 0 0.75rem;
+      }
+
+      .app-content {
+        padding: 0.75rem;
+      }
+
+      .card {
+        padding: 0.9rem 0.95rem;
+      }
+
+      .topbar-right {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // Global namespace
+    window.PatternLab = window.PatternLab || {};
+
+    // Simple preview state
+    PatternLab.previewState = {
+      username: "Guest trader",
+      currentTier: "Beginner",
+      level: 3,
+      xp: 120,
+      xpToNext: 200,
+      streak: 4,
+      bestStreak: 9
+    };
+
+    function xpPercent() {
+      var s = PatternLab.previewState;
+      if (!s.xpToNext) return 0;
+      return Math.max(0, Math.min(100, (s.xp / s.xpToNext) * 100));
+    }
+
+    // Views
+
+    PatternLab.views = {
+      dashboard: function () {
+        var s = PatternLab.previewState;
+        return `
+          <div class="content-inner">
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Welcome back, ${s.username}</div>
+                  <div class="card-subtitle">
+                    You are on the Beginner path. Clear quests, keep your streak, and unlock Intermediate.
+                  </div>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  <button class="btn btn-primary" data-view="learn">
+                    Continue learning
+                  </button>
+                  <button class="btn btn-ghost" data-view="chart-lab">
+                    Open Chart Lab
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-2">
+                <div>
+                  <div class="stat-label">Account progression</div>
+                  <div class="stat-value">Level ${s.level}</div>
+                  <div class="pill-row">
+                    <span class="pill">XP: ${s.xp} / ${s.xpToNext}</span>
+                    <span class="pill">Tier: Beginner</span>
+                    <span class="pill">Mode: Linear</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="stat-label">Streak</div>
+                  <div class="stat-value">${s.streak} days active</div>
+                  <div class="pill-row">
+                    <span class="pill">Best streak: ${s.bestStreak}</span>
+                    <span class="pill">Daily quest: In progress</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Beginner track overview</div>
+                    <div class="card-subtitle">Linear path, fundamentals first.</div>
+                  </div>
+                  <span class="chip-small">Track: Beginner</span>
+                </div>
+                <div class="module-list">
+                  <div class="module-item">
+                    <div>
+                      <span class="label">B1 - Market basics</span><br>
+                      <span class="meta">Status: In progress · 3 of 7 lessons</span>
+                    </div>
+                    <button class="btn btn-ghost" data-view="learn">Open</button>
+                  </div>
+                  <div class="module-item">
+                    <div>
+                      <span class="label">B2 - Order types</span><br>
+                      <span class="meta">Locked · Unlocks at level 4</span>
+                    </div>
+                    <span class="pill">Locked</span>
+                  </div>
+                  <div class="module-item">
+                    <div>
+                      <span class="label">B3 - Risk management</span><br>
+                      <span class="meta">Locked · Unlocks after B1 and B2</span>
+                    </div>
+                    <span class="pill">Locked</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Today at a glance</div>
+                    <div class="card-subtitle">Finish a quiz and keep your streak alive.</div>
+                  </div>
+                </div>
+                <div class="module-list">
+                  <div class="module-item">
+                    <div>
+                      <span class="label">Daily quiz - Candles vs bars</span><br>
+                      <span class="meta">5 questions · +40 XP bonus</span>
+                    </div>
+                    <button class="btn btn-primary" data-view="quiz">Start</button>
+                  </div>
+                  <div class="module-item">
+                    <div>
+                      <span class="label">Pattern ping - Trend or range</span><br>
+                      <span class="meta">Chart snapshot · +25 XP</span>
+                    </div>
+                    <button class="btn btn-ghost" data-view="chart-lab">View</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      learn: function () {
+        return `
+          <div class="content-inner">
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Learning map</div>
+                  <div class="card-subtitle">
+                    Beginner, Intermediate, Expert tiers arranged as unlockable paths.
+                  </div>
+                </div>
+              </div>
+              <div class="pill-row">
+                <span class="pill">Beginner · Linear progression</span>
+                <span class="pill">Intermediate · Linear with gating</span>
+                <span class="pill">Expert · Linear and exponential mix</span>
+              </div>
+            </div>
+            <div class="grid grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Beginner modules</div>
+                    <div class="card-subtitle">Start here, no assumptions.</div>
+                  </div>
+                </div>
+                <div class="module-list">
+                  <div class="module-item">
+                    <div>
+                      <span class="label">B1 - Market structure</span><br>
+                      <span class="meta">Unlocked · Recommended first</span>
+                    </div>
+                    <button class="btn btn-primary">Enter</button>
+                  </div>
+                  <div class="module-item">
+                    <div>
+                      <span class="label">B2 - Orders and execution</span><br>
+                      <span class="meta">Locked · Level 4 required</span>
+                    </div>
+                    <span class="pill">Locked</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Intermediate and expert preview</div>
+                    <div class="card-subtitle">Visible, but gated by level and streak.</div>
+                  </div>
+                </div>
+                <div class="module-list">
+                  <div class="module-item">
+                    <div>
+                      <span class="label">Intermediate: Intraday playbook</span><br>
+                      <span class="meta">Locked · Reach level 10</span>
+                    </div>
+                    <span class="pill">Future</span>
+                  </div>
+                  <div class="module-item">
+                    <div>
+                      <span class="label">Expert: Exponential tier</span><br>
+                      <span class="meta">Locked · High streak required</span>
+                    </div>
+                    <span class="pill">Future</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      chartLab: function () {
+        return `
+          <div class="content-inner">
+            <div class="card" style="margin-bottom:1rem;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Chart Lab prototype</div>
+                  <div class="card-subtitle">
+                    TradingView inspired layout with dummy controls and a placeholder chart.
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                  <div class="pill-row">
+                    <span class="pill">Symbol: FAKEUSD</span>
+                    <span class="pill">Timeframe: 5m</span>
+                    <span class="pill">Theme: Dark</span>
+                  </div>
+                  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                    <button class="btn btn-ghost">Paper trade stub</button>
+                    <button class="btn btn-ghost">Pattern task</button>
+                  </div>
+                </div>
+                <div style="border-radius:0.8rem;border:1px solid #111827;background:#020617;padding:0.5rem 0.5rem 0.9rem;">
+                  <div style="height:260px;border-radius:0.6rem;background:radial-gradient(circle at top, #0b1120, #020617);border:1px solid #1f2937;position:relative;overflow:hidden;">
+                    <div style="position:absolute;inset:0;opacity:0.6;background-image:linear-gradient(to right, rgba(15,23,42,0.9) 1px, transparent 1px),linear-gradient(to bottom, rgba(15,23,42,0.9) 1px, transparent 1px);background-size:40px 40px;"></div>
+                    <div style="position:absolute;inset:10%;border-radius:0.3rem;border:1px solid rgba(34,197,94,0.5);box-shadow:0 0 25px rgba(34,197,94,0.35);"></div>
+                    <div style="position:absolute;bottom:0.6rem;left:0.8rem;font-size:0.7rem;color:#6b7280;">Dummy price action only · no real data</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      profile: function () {
+        var s = PatternLab.previewState;
+        return `
+          <div class="content-inner">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Profile preview</div>
+                  <div class="card-subtitle">Later this screen persists configs to localStorage.</div>
+                </div>
+              </div>
+              <div class="grid grid-2">
+                <div>
+                  <div class="stat-label">Name</div>
+                  <div class="stat-value">${s.username}</div>
+                  <div class="pill-row">
+                    <span class="pill">Theme: Dark</span>
+                    <span class="pill">Preferred pace: Normal</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="stat-label">Progress</div>
+                  <div class="stat-value">Level ${s.level}</div>
+                  <div class="pill-row">
+                    <span class="pill">Tier: Beginner</span>
+                    <span class="pill">Current streak: ${s.streak}</span>
+                    <span class="pill">Best streak: ${s.bestStreak}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    // Layout
+
+    PatternLab.layout = {
+      mount: function (root) {
+        root.innerHTML = `
+          <div class="app-shell">
+            <aside class="app-sidebar">
+              <div class="sidebar-logo">
+                PatternLab
+                <span>Trader</span>
+              </div>
+
+              <div class="sidebar-section">
+                <div class="sidebar-section-label">Navigate</div>
+                <nav class="sidebar-nav">
+                  <a href="#dashboard" class="sidebar-link" data-nav="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                  </a>
+                  <a href="#learn" class="sidebar-link" data-nav="learn">
+                    <span class="icon">🎯</span>
+                    <span>Learn</span>
+                  </a>
+                  <a href="#chart-lab" class="sidebar-link" data-nav="chart-lab">
+                    <span class="icon">📈</span>
+                    <span>Chart Lab</span>
+                  </a>
+                  <a href="#profile" class="sidebar-link" data-nav="profile">
+                    <span class="icon">⚙️</span>
+                    <span>Profile</span>
+                  </a>
+                </nav>
+              </div>
+
+              <div class="sidebar-foot">
+                <div class="sidebar-foot-cta">
+                  Version 1 focuses on learning only. No real trading.
+                </div>
+                <div class="sidebar-chip">
+                  <span>Client side only</span>
+                </div>
+              </div>
+            </aside>
+
+            <main class="app-main">
+              <header class="app-topbar">
+                <div class="topbar-inner">
+                  <div class="topbar-left">
+                    <span class="tier-badge">Beginner</span>
+                    <span class="level-pill">Level ${PatternLab.previewState.level}</span>
+                  </div>
+                  <div class="topbar-center">
+                    <div class="xp-meta">
+                      <span>XP progress</span>
+                      <span>${PatternLab.previewState.xp} / ${PatternLab.previewState.xpToNext}</span>
+                    </div>
+                    <div class="xp-bar">
+                      <div class="xp-bar-fill" id="xp-fill"></div>
+                    </div>
+                  </div>
+                  <div class="topbar-right">
+                    <div class="streak-chip">
+                      <span class="streak-icon">🔥</span>
+                      <span>${PatternLab.previewState.streak} streak</span>
+                    </div>
+                    <div class="user-pill">
+                      ${PatternLab.previewState.username}
+                    </div>
+                  </div>
+                </div>
+              </header>
+              <section class="app-content">
+                <div class="content-inner" id="app-content"></div>
+              </section>
+            </main>
+          </div>
+        `;
+
+        PatternLab.layout.updateXpBar();
+        PatternLab.layout.bindNavClicks();
+      },
+
+      updateXpBar: function () {
+        var fill = document.getElementById("xp-fill");
+        if (!fill) return;
+        fill.style.width = xpPercent() + "%";
+      },
+
+      bindNavClicks: function () {
+        var links = document.querySelectorAll(".sidebar-link, .btn[data-view]");
+        links.forEach(function (el) {
+          el.addEventListener("click", function (evt) {
+            var view = el.getAttribute("data-view");
+            if (view) {
+              evt.preventDefault();
+              window.location.hash = view === "dashboard" ? "#dashboard" : "#" + view;
+            }
+          });
+        });
+      },
+
+      setActiveNav: function (routeName) {
+        var links = document.querySelectorAll(".sidebar-link");
+        links.forEach(function (link) {
+          var nav = link.getAttribute("data-nav");
+          if (!nav) return;
+          if (nav === routeName) {
+            link.classList.add("active");
+          } else {
+            link.classList.remove("active");
+          }
+        });
+      },
+
+      renderView: function (name) {
+        var target = document.getElementById("app-content");
+        if (!target) return;
+
+        var viewFn = PatternLab.views[name] || PatternLab.views.dashboard;
+        target.innerHTML = viewFn();
+
+        PatternLab.layout.bindNavClicks();
+      }
+    };
+
+    // Router
+
+    PatternLab.router = {
+      resolve: function () {
+        var hash = window.location.hash || "#dashboard";
+        var name = hash.replace("#", "");
+        if (!name) name = "dashboard";
+        return name;
+      },
+      handle: function () {
+        var name = PatternLab.router.resolve();
+        PatternLab.layout.setActiveNav(name);
+        PatternLab.layout.renderView(name);
+      },
+      init: function () {
+        window.addEventListener("hashchange", PatternLab.router.handle);
+        PatternLab.router.handle();
+      }
+    };
+
+    // Bootstrap
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var root = document.getElementById("app");
+      PatternLab.layout.mount(root);
+      PatternLab.router.init();
+    });
+  </script>
+</body>
+</html>

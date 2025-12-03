@@ -33,7 +33,6 @@
   }
 
   function renderLessonBody(lesson) {
-    // Dummy body text for now; later we plug real content.
     if (!lesson) {
       return `
         <p style="font-size:0.9rem;color:var(--text-muted);">
@@ -42,22 +41,19 @@
       `;
     }
 
-    const kindLabel = lesson.kind === "quiz" ? "Check quiz" : "Theory";
+    const map = PatternLab.lessonsContent || {};
+    const html = map[lesson.id];
 
+    if (html) {
+      return html;
+    }
+
+    // Fallback if no content defined yet
     return `
-      <div class="stat-label">${kindLabel}</div>
-      <div class="stat-value" style="font-size:0.95rem;margin-bottom:0.4rem;">
-        ${lesson.title}
-      </div>
-      <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.5;">
-        This is placeholder content for <strong>${lesson.id}</strong>. In the real build,
-        this panel will contain the explanation, examples, and in-exercise prompts for this lesson.
-      </p>
-      <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.6rem;">
-        Completing this lesson in the prototype grants a small XP amount so we can test
-        the progression engine and streak logic.
-      </p>
-    `;
+      <p style="font-size:0.9rem;color:var(--text-muted);">
+        Lesson <strong>${lesson.id}</strong> does not have custom content yet.
+        This placeholder exists so the viewer still works while we fill out the curriculum.
+      </p> `;
   }
 
   function renderSideList(module, lessons, activeIndex) {

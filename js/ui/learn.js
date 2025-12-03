@@ -1,13 +1,44 @@
 (function () {
   window.PatternLab = window.PatternLab || {};
 
+  function computeModuleProgress(structure, state) {
+    const progress = {};
+    const lessonProgress = (state && state.lessonProgress) || {};
+
+    Object.keys(structure.modules).forEach(function (moduleId) {
+      const lessons = structure.lessons[moduleId] || [];
+      if (!lessons.length) return;
+
+      const moduleLessonProgress = lessonProgress[moduleId] || {};
+      const allDone = lessons.every(function (lesson) {
+        return !!moduleLessonProgress[lesson.id];
+      });
+
+      if (allDone) {
+        progress[moduleId] = true;
+      }
+    });
+
+    return progress;
+  }
+
   window.PatternLab.learn = {
     render() {
       const structure = PatternLab.structure;
+      const state = PatternLab.state.get();
+
+      // Build a dynamic progress map: which modules are fully completed
+      const moduleProgress = computeModuleProgress(structure, state);
+
+      // Clone structure with a dynamic progress field for unlock logic
+      const structureForUnlock = Object.assign({}, structure, {
+        progress: moduleProgress
+      });
+
       let unlockedB2 = false;
 
-      if (structure && PatternLab.progression) {
-        unlockedB2 = PatternLab.progression.isModuleUnlocked("B2", structure);
+      if (structureForUnlock && PatternLab.progression) {
+        unlockedB2 = PatternLab.progression.isModuleUnlocked("B2", structureForUnlock);
       }
 
       const b2Meta = unlockedB2
@@ -49,10 +80,14 @@
                 <div class="module-item">
                   <div>
                     <span class="label">B1 Market structure</span><br>
-                    <span class="meta">Unlocked · recommended first</span>
+                    <span class="meta">${
+                      moduleProgress.B1
+                        ? "Completed · all lessons done"
+                        : "Unlocked · recommended first"
+                    }</span>
                   </div>
                   <button class="btn btn-primary" data-view="lesson" data-module-id="B1" data-lesson-index="0">
-                    Enter
+                    ${moduleProgress.B1 ? "Review" : "Enter"}
                   </button>
                 </div>
                 <div class="module-item">

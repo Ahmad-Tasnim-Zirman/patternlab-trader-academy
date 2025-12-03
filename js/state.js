@@ -5,9 +5,9 @@
     username: "Guest trader",
     currentTier: "beginner",
 
-    xp: 120,
+    xp: 0,
     xpToNext: 200,
-    level: 3,
+    level: 0,
 
     // Daily streak system
     streak: 0,

@@ -27,27 +27,61 @@
       const structure = PatternLab.structure;
       const state = PatternLab.state.get();
 
-      // Build a dynamic progress map: which modules are fully completed
       const moduleProgress = computeModuleProgress(structure, state);
 
-      // Clone structure with a dynamic progress field for unlock logic
       const structureForUnlock = Object.assign({}, structure, {
         progress: moduleProgress
       });
 
       let unlockedB2 = false;
+      let unlockedB3 = false;
 
       if (structureForUnlock && PatternLab.progression) {
         unlockedB2 = PatternLab.progression.isModuleUnlocked("B2", structureForUnlock);
+        unlockedB3 = PatternLab.progression.isModuleUnlocked("B3", structureForUnlock);
       }
 
+      const b1Meta = moduleProgress.B1
+        ? "Completed · all lessons done"
+        : "Unlocked · recommended first";
+
       const b2Meta = unlockedB2
-        ? "Unlocked · you can enter this module"
+        ? (moduleProgress.B2
+            ? "Completed · all lessons done"
+            : "Unlocked · ready when you are")
         : "Locked · level 4 and B1 required";
 
+      const b3Meta = unlockedB3
+        ? (moduleProgress.B3
+            ? "Completed · all lessons done"
+            : "Unlocked · B1 and B2 cleared")
+        : "Locked · finish B1 and B2";
+
+      const b1Action = `
+        <button class="btn btn-primary"
+                data-view="lesson"
+                data-module-id="B1"
+                data-lesson-index="0">
+          ${moduleProgress.B1 ? "Review" : "Enter"}
+        </button>`;
+
       const b2Action = unlockedB2
-        ? '<button class="btn btn-primary" data-view="lesson" data-module-id="B2" data-lesson-index="0">Enter</button>'
-        : '<span class="pill">Locked</span>';
+        ? `<button class="btn btn-primary"
+                   data-view="lesson"
+                   data-module-id="B2"
+                   data-lesson-index="0">
+             ${moduleProgress.B2 ? "Review" : "Enter"}
+           </button>`
+        : `<span class="pill">Locked</span>`;
+
+      const b3Action = unlockedB3
+        ? `<button class="btn btn-primary"
+                   data-view="lesson"
+                   data-module-id="B3"
+                   data-lesson-index="0">
+             ${moduleProgress.B3 ? "Review" : "Enter"}
+           </button>`
+        : `<span class="pill">Locked</span>`;
 
       return `
         <div class="content-inner">
@@ -67,6 +101,7 @@
               <span class="pill">Expert streak powered</span>
             </div>
           </div>
+
           <div class="grid grid-2">
             <div class="card card-soft">
               <div class="card-glow-edge"></div>
@@ -80,22 +115,25 @@
                 <div class="module-item">
                   <div>
                     <span class="label">B1 Market structure</span><br>
-                    <span class="meta">${
-                      moduleProgress.B1
-                        ? "Completed · all lessons done"
-                        : "Unlocked · recommended first"
-                    }</span>
+                    <span class="meta">${b1Meta}</span>
                   </div>
-                  <button class="btn btn-primary" data-view="lesson" data-module-id="B1" data-lesson-index="0">
-                    ${moduleProgress.B1 ? "Review" : "Enter"}
-                  </button>
+                  ${b1Action}
                 </div>
+
                 <div class="module-item">
                   <div>
                     <span class="label">B2 Orders and execution</span><br>
                     <span class="meta">${b2Meta}</span>
                   </div>
                   ${b2Action}
+                </div>
+
+                <div class="module-item">
+                  <div>
+                    <span class="label">B3 Risk management</span><br>
+                    <span class="meta">${b3Meta}</span>
+                  </div>
+                  ${b3Action}
                 </div>
               </div>
             </div>

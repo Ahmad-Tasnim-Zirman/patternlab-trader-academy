@@ -1,10 +1,16 @@
 // Progression engine: XP, levels, daily streak, module/lesson unlocks.
 
 (function () {
-  const LEVEL_XP = 200; // constant XP per level for V1
+  const BASE_XP = 200;   // XP required for level 0 -> 1
+  const XP_STEP = 50;    // XP requirement increases by this per level
 
   function todayISO() {
     return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  }
+
+  function xpRequiredForLevel(level) {
+    // Level 0 = 200, Level 1 = 250, Level 2 = 300, ...
+    return BASE_XP + XP_STEP * level;
   }
 
   // Daily rollover:
@@ -49,19 +55,24 @@
 
   function addXP(amount) {
     const s = PatternLab.state.get();
-    let xp = (s.xp || 0) + amount;
-    let level = s.level || 1;
-    let leftover = xp;
 
-    while (leftover >= LEVEL_XP) {
-      leftover -= LEVEL_XP;
+    let level = s.level || 0;
+    let xp = (s.xp || 0) + amount;
+
+    // Use variable XP thresholds per level
+    let required = xpRequiredForLevel(level);
+
+    // Burn XP through as many levels as needed
+    while (xp >= required) {
+      xp -= required;
       level += 1;
+      required = xpRequiredForLevel(level);
     }
 
     PatternLab.state.update({
-      xp: leftover,
-      level: level,
-      xpToNext: LEVEL_XP
+      xp,
+      level,
+      xpToNext: required
     });
   }
 

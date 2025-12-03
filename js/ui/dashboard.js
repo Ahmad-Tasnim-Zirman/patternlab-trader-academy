@@ -1,9 +1,90 @@
 (function () {
   window.PatternLab = window.PatternLab || {};
 
+  function computeModuleProgress(structure, state) {
+    const progress = {};
+    const lessonProgress = (state && state.lessonProgress) || {};
+
+    Object.keys(structure.modules).forEach(function (moduleId) {
+      const lessons = structure.lessons[moduleId] || [];
+      if (!lessons.length) return;
+
+      const moduleLessonProgress = lessonProgress[moduleId] || {};
+      const allDone = lessons.every(function (lesson) {
+        return !!moduleLessonProgress[lesson.id];
+      });
+
+      if (allDone) {
+        progress[moduleId] = true;
+      }
+    });
+
+    return progress;
+  }
+
   window.PatternLab.dashboard = {
     render() {
       const s = PatternLab.state.get();
+      const structure = PatternLab.structure;
+
+      const moduleProgress = computeModuleProgress(structure, s);
+
+      const structureForUnlock = Object.assign({}, structure, {
+        progress: moduleProgress
+      });
+
+      let unlockedB2 = false;
+      let unlockedB3 = false;
+
+      if (structureForUnlock && PatternLab.progression) {
+        unlockedB2 = PatternLab.progression.isModuleUnlocked("B2", structureForUnlock);
+        unlockedB3 = PatternLab.progression.isModuleUnlocked("B3", structureForUnlock);
+      }
+
+      const b1Meta = moduleProgress.B1
+        ? "Completed · all lessons done"
+        : "In progress · clear all four steps";
+
+      const b2Meta = unlockedB2
+        ? (moduleProgress.B2
+            ? "Completed · module done"
+            : "Unlocked · ready when you are")
+        : "Locked · level 4 and B1 required";
+
+      const b3Meta = unlockedB3
+        ? (moduleProgress.B3
+            ? "Completed · module done"
+            : "Unlocked · B1 and B2 cleared")
+        : "Locked · finish B1 and B2";
+
+      const b1Action = `
+        <a href="#lesson"
+           class="btn btn-ghost"
+           data-view="lesson"
+           data-module-id="B1"
+           data-lesson-index="0">
+          ${moduleProgress.B1 ? "Review" : "Resume"}
+        </a>`;
+
+      const b2Action = unlockedB2
+        ? `<a href="#lesson"
+              class="btn btn-ghost"
+              data-view="lesson"
+              data-module-id="B2"
+              data-lesson-index="0">
+             ${moduleProgress.B2 ? "Review" : "Enter"}
+           </a>`
+        : `<span class="pill">Locked</span>`;
+
+      const b3Action = unlockedB3
+        ? `<a href="#lesson"
+              class="btn btn-ghost"
+              data-view="lesson"
+              data-module-id="B3"
+              data-lesson-index="0">
+             ${moduleProgress.B3 ? "Review" : "Enter"}
+           </a>`
+        : `<span class="pill">Locked</span>`;
 
       return `
         <div class="content-inner">
@@ -72,23 +153,25 @@
                 <div class="module-item">
                   <div>
                     <span class="label">B1 Market basics</span><br>
-                    <span class="meta">In progress · 3 of 7 lessons</span>
+                    <span class="meta">${b1Meta}</span>
                   </div>
-                  <a href="#lesson" class="btn btn-ghost" data-view="lesson" data-module-id="B1" data-lesson-index="0">Resume</a>
+                  ${b1Action}
                 </div>
+
                 <div class="module-item">
                   <div>
                     <span class="label">B2 Order types</span><br>
-                    <span class="meta">Locked · unlock at level 4</span>
+                    <span class="meta">${b2Meta}</span>
                   </div>
-                  <span class="pill">Locked</span>
+                  ${b2Action}
                 </div>
+
                 <div class="module-item">
                   <div>
                     <span class="label">B3 Risk management</span><br>
-                    <span class="meta">Locked · finish B1 and B2</span>
+                    <span class="meta">${b3Meta}</span>
                   </div>
-                  <span class="pill">Locked</span>
+                  ${b3Action}
                 </div>
               </div>
             </div>

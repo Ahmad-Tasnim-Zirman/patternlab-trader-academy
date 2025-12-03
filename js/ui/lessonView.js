@@ -1,4 +1,5 @@
-// Lesson viewer: shows lessons for a module and lets the user mark a lesson complete.
+// Lesson viewer: shows lessons for a module and lets the user mark a lesson complete
+// with linear progression through lessons.
 
 (function () {
   window.PatternLab = window.PatternLab || {};
@@ -26,6 +27,41 @@
     return { module, lessons, idx };
   }
 
+  function getUnlockState(moduleId, lessons) {
+    const s = PatternLab.state.get();
+    const lp = s.lessonProgress || {};
+    const modLP = lp[moduleId] || {};
+
+    if (!lessons.length) {
+      return {
+        modLP,
+        firstIncompleteIndex: 0,
+        unlockedMaxIndex: -1
+      };
+    }
+
+    let firstIncompleteIndex = lessons.length;
+    for (let i = 0; i < lessons.length; i++) {
+      const lesson = lessons[i];
+      if (!modLP[lesson.id]) {
+        firstIncompleteIndex = i;
+        break;
+      }
+    }
+
+    // If everything is completed, all lessons are unlocked
+    const unlockedMaxIndex =
+      firstIncompleteIndex === lessons.length
+        ? lessons.length - 1
+        : firstIncompleteIndex;
+
+    return {
+      modLP,
+      firstIncompleteIndex,
+      unlockedMaxIndex
+    };
+  }
+
   function isLessonCompleted(moduleId, lessonId) {
     const s = PatternLab.state.get();
     const lp = s.lessonProgress || {};
@@ -48,15 +84,17 @@
       return html;
     }
 
-    // Fallback if no content defined yet
     return `
       <p style="font-size:0.9rem;color:var(--text-muted);">
         Lesson <strong>${lesson.id}</strong> does not have custom content yet.
         This placeholder exists so the viewer still works while we fill out the curriculum.
-      </p> `;
+      </p>
+    `;
   }
 
-  function renderSideList(module, lessons, activeIndex) {
+  function renderSideList(module, lessons, activeIndex, unlockState) {
+    const { modLP, firstIncompleteIndex, unlockedMaxIndex } = unlockState;
+
     if (!lessons.length) {
       return `
         <div class="module-item">
@@ -70,20 +108,46 @@
 
     return lessons
       .map(function (lesson, index) {
-        const completed = isLessonCompleted(module.id, lesson.id);
-        const isActive = index === activeIndex;
+        const completed = !!modLP[lesson.id];
+        const allCompleted = firstIncompleteIndex === lessons.length;
 
-        const badge = completed
-          ? '<span class="pill">Done</span>'
-          : isActive
-          ? '<span class="pill">Current</span>'
-          : '<span class="pill">Locked</span>';
+        const isCurrent =
+          !completed &&
+          (allCompleted ? index === activeIndex : index === firstIncompleteIndex);
+
+        const locked =
+          !completed &&
+          !isCurrent &&
+          !allCompleted &&
+          index > unlockedMaxIndex;
+
+        let badge;
+        if (completed) {
+          badge = '<span class="pill">Done</span>';
+        } else if (isCurrent) {
+          badge = '<span class="pill">Current</span>';
+        } else if (locked) {
+          badge = '<span class="pill">Locked</span>';
+        } else {
+          // Uncompleted but earlier than current, or all completed
+          badge = '<span class="pill">Open</span>';
+        }
+
+        const rowClasses = ["module-item"];
+        if (locked) rowClasses.push("is-locked");
+        if (isCurrent) rowClasses.push("is-current");
 
         return `
-          <div class="module-item" data-lesson-index="${index}" data-role="lesson-row">
+          <div class="${rowClasses.join(" ")}"
+               data-lesson-index="${index}"
+               data-role="lesson-row"
+               data-locked="${locked ? "true" : "false"}">
             <div>
               <span class="label">${lesson.title}</span><br>
-              <span class="meta">${lesson.kind === "quiz" ? "Quiz" : "Lesson"} · ${completed ? "Completed" : "Not completed"}</span>
+              <span class="meta">
+                ${lesson.kind === "quiz" ? "Quiz" : "Lesson"} ·
+                ${completed ? "Completed" : locked ? "Locked" : "Not completed"}
+              </span>
             </div>
             ${badge}
           </div>
@@ -97,6 +161,7 @@
 
     render() {
       const { module, lessons, idx } = getModuleAndLessons();
+      const unlockState = getUnlockState(module.id, lessons);
       const current = lessons[idx];
 
       const completed = current
@@ -104,7 +169,7 @@
         : false;
 
       const canGoPrev = idx > 0;
-      const canGoNext = idx < lessons.length - 1;
+      const canGoNext = idx < unlockState.unlockedMaxIndex;
 
       return `
         <div class="content-inner">
@@ -114,7 +179,7 @@
               <div>
                 <div class="card-title">${module.name || "Module " + module.id}</div>
                 <div class="card-subtitle">
-                  Prototype lesson viewer. Selecting and completing lessons updates XP and progress.
+                  Lessons unlock in order. You can always review earlier lessons, but cannot jump ahead of the next task.
                 </div>
               </div>
               <a href="#dashboard" class="btn btn-ghost" data-view="dashboard">Back to dashboard</a>
@@ -131,7 +196,7 @@
                 </div>
               </div>
               <div class="module-list" id="lesson-list">
-                ${renderSideList(module, lessons, idx)}
+                ${renderSideList(module, lessons, idx, unlockState)}
               </div>
             </div>
 
@@ -172,8 +237,14 @@
       const root = document.getElementById("app-content");
       if (!root) return;
 
-      // Change lesson by clicking in the list
+      const { module, lessons } = getModuleAndLessons();
+      const unlockState = getUnlockState(module.id, lessons);
+
+      // Change lesson by clicking in the list, but ignore locked rows
       root.querySelectorAll('[data-role="lesson-row"]').forEach(function (row) {
+        const locked = row.getAttribute("data-locked") === "true";
+        if (locked) return;
+
         row.addEventListener("click", function () {
           const idxAttr = row.getAttribute("data-lesson-index");
           const idx = parseInt(idxAttr || "0", 10);
@@ -182,7 +253,7 @@
         });
       });
 
-      // Previous / next
+      // Previous / next constrained by unlockedMaxIndex
       const prevBtn = root.querySelector('[data-role="prev-lesson"]');
       const nextBtn = root.querySelector('[data-role="next-lesson"]');
 
@@ -195,8 +266,11 @@
 
       if (nextBtn && !nextBtn.disabled) {
         nextBtn.addEventListener("click", function () {
-          PatternLab.lessonView.setContext(ctx.moduleId, ctx.lessonIndex + 1);
-          PatternLab.layout.renderView("lesson");
+          const targetIndex = ctx.lessonIndex + 1;
+          if (targetIndex <= unlockState.unlockedMaxIndex) {
+            PatternLab.lessonView.setContext(ctx.moduleId, targetIndex);
+            PatternLab.layout.renderView("lesson");
+          }
         });
       }
 
@@ -223,7 +297,7 @@
             });
           }
 
-          // Re-render viewer in-place
+          // Re-render viewer in-place with updated unlock state
           PatternLab.layout.renderView("lesson");
           PatternLab.layout.updateXpBar();
         });

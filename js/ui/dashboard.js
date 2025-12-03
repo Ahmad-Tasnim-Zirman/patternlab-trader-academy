@@ -17,12 +17,12 @@
                 </div>
               </div>
               <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                <button class="btn btn-primary" data-view="learn">
+                <a href="#learn" class="btn btn-primary" data-view="learn">
                   Continue path
-                </button>
-                <button class="btn btn-ghost" data-view="chart-lab">
+                </a>
+                <a href="#chart-lab" class="btn btn-ghost" data-view="chart-lab">
                   Open Chart Lab
-                </button>
+                </a>
               </div>
             </div>
             <div class="grid grid-2 timeline-card">
@@ -74,7 +74,7 @@
                     <span class="label">B1 Market basics</span><br>
                     <span class="meta">In progress · 3 of 7 lessons</span>
                   </div>
-                  <button class="btn btn-ghost" data-view="learn">Resume</button>
+                  <a href="#learn" class="btn btn-ghost" data-view="learn">Resume</a>
                 </div>
                 <div class="module-item">
                   <div>
@@ -107,14 +107,14 @@
                     <span class="label">Daily quiz Candles vs bars</span><br>
                     <span class="meta">5 questions · +40 XP bonus</span>
                   </div>
-                  <button class="btn btn-primary js-daily-quiz">Start</button>
+                  <a href="#quiz" class="btn btn-primary" data-view="quiz">Start</a>
                 </div>
                 <div class="module-item">
                   <div>
                     <span class="label">Pattern check Trend or range</span><br>
                     <span class="meta">Chart snapshot · +25 XP</span>
                   </div>
-                  <button class="btn btn-ghost" data-view="chart-lab">View</button>
+                  <a href="#chart-lab" class="btn btn-ghost" data-view="chart-lab">View</a>
                 </div>
               </div>
             </div>

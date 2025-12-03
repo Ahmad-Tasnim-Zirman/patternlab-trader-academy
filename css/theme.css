@@ -99,6 +99,7 @@ body.theme-dragon::before {
     #050816;
   pointer-events: none;
   z-index: -3;
+  pointer-events: none;
 }
 
 body.theme-dragon::after {
@@ -114,6 +115,7 @@ body.theme-dragon::after {
     radial-gradient(circle at 80% 60%, rgba(15,23,42,0.5) 0, transparent 55%),
     repeating-linear-gradient(135deg, rgba(15,23,42,0.3) 0, rgba(15,23,42,0.3) 1px, transparent 1px, transparent 3px);
   mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
 body.theme-cyber::before {
@@ -128,6 +130,7 @@ body.theme-cyber::before {
   pointer-events: none;
   z-index: -1;
   animation: grid-pan 20s linear infinite;
+  pointer-events: none;
 }
 
 @keyframes grid-pan {

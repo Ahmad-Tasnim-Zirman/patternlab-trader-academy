@@ -127,6 +127,19 @@
           }
         });
       });
+
+      // Daily quiz demo hook
+      const dailyQuiz = document.querySelector(".js-daily-quiz");
+      if (dailyQuiz && window.PatternLab && PatternLab.events) {
+        dailyQuiz.addEventListener("click", function () {
+          PatternLab.events.emit("task:result", {
+            type: "dailyQuiz",
+            success: true,
+            xpFull: 40,
+            xpPartial: 20
+          });
+        });
+      }
     },
 
     setActiveNav(routeName) {
@@ -190,7 +203,6 @@
         } catch (_) {}
       });
 
-      // Restore stored theme
       try {
         const stored = localStorage.getItem("patternlab-theme");
         if (stored === "theme-cyber") {

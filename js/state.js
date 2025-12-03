@@ -4,11 +4,19 @@
   const defaultState = {
     username: "Guest trader",
     currentTier: "beginner",
+
     xp: 120,
     xpToNext: 200,
     level: 3,
-    streak: 4,
-    bestStreak: 9
+
+    // Daily streak system
+    streak: 0,
+    bestStreak: 0,
+    lastActiveDate: null,      // "YYYY-MM-DD"
+    tasksCompletedToday: 0,    // count of completed tasks for current day
+
+    // Content progress
+    lessonProgress: {}         // { moduleId: { lessonId: true } }
   };
 
   let state = null;

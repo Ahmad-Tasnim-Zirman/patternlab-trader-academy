@@ -40,7 +40,7 @@
                 <div class="stat-value">${s.streak} day streak</div>
                 <div class="pill-row">
                   <span class="pill">Best ${s.bestStreak}</span>
-                  <span class="pill">Daily quest not cleared</span>
+                  <span class="pill">Daily quest ${s.tasksCompletedToday > 0 ? "cleared" : "not cleared"}</span>
                 </div>
               </div>
             </div>
@@ -107,7 +107,7 @@
                     <span class="label">Daily quiz Candles vs bars</span><br>
                     <span class="meta">5 questions · +40 XP bonus</span>
                   </div>
-                  <button class="btn btn-primary" data-view="quiz">Start</button>
+                  <button class="btn btn-primary js-daily-quiz">Start</button>
                 </div>
                 <div class="module-item">
                   <div>

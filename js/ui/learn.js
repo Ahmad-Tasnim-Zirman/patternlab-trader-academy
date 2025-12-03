@@ -3,6 +3,21 @@
 
   window.PatternLab.learn = {
     render() {
+      const structure = PatternLab.structure;
+      let unlockedB2 = false;
+
+      if (structure && PatternLab.progression) {
+        unlockedB2 = PatternLab.progression.isModuleUnlocked("B2", structure);
+      }
+
+      const b2Meta = unlockedB2
+        ? "Unlocked · you can enter this module"
+        : "Locked · level 4 and B1 required";
+
+      const b2Action = unlockedB2
+        ? '<button class="btn btn-primary">Enter</button>'
+        : '<span class="pill">Locked</span>';
+
       return `
         <div class="content-inner">
           <div class="card" style="margin-bottom:1rem;">
@@ -41,9 +56,9 @@
                 <div class="module-item">
                   <div>
                     <span class="label">B2 Orders and execution</span><br>
-                    <span class="meta">Locked · level 4 required</span>
+                    <span class="meta">${b2Meta}</span>
                   </div>
-                  <span class="pill">Locked</span>
+                  ${b2Action}
                 </div>
               </div>
             </div>

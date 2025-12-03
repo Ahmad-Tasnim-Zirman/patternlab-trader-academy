@@ -116,31 +116,18 @@
       }
     },
 
-    bindNavClicks() {
-      const links = document.querySelectorAll(".sidebar-link, .btn[data-view]");
-      links.forEach(function (el) {
-        el.addEventListener("click", function (evt) {
+      bindNavClicks() {
+      const all = document.querySelectorAll("[data-view]");
+      all.forEach(el => {
+        el.onclick = (e) => {
+          e.preventDefault();
           const view = el.getAttribute("data-view");
-          if (view) {
-            evt.preventDefault();
-            window.location.hash = view === "dashboard" ? "#dashboard" : "#" + view;
-          }
-        });
+          if (!view) return;
+          window.location.hash = "#" + view;
+        };
       });
-
-      // Daily quiz demo hook
-      const dailyQuiz = document.querySelector(".js-daily-quiz");
-      if (dailyQuiz && window.PatternLab && PatternLab.events) {
-        dailyQuiz.addEventListener("click", function () {
-          PatternLab.events.emit("task:result", {
-            type: "dailyQuiz",
-            success: true,
-            xpFull: 40,
-            xpPartial: 20
-          });
-        });
-      }
     },
+
 
     setActiveNav(routeName) {
       const links = document.querySelectorAll(".sidebar-link");
@@ -160,6 +147,7 @@
       if (!target) return;
 
       let html = "";
+
       switch (name) {
         case "dashboard":
           html = PatternLab.dashboard.render();
@@ -167,19 +155,27 @@
         case "learn":
           html = PatternLab.learn.render();
           break;
-        case "chartLab":
+        case "chart-lab":
           html = PatternLab.chartLab.render();
           break;
         case "profile":
           html = PatternLab.profile.render();
+          break;
+        case "quiz":
+          html = PatternLab.quiz.render();
           break;
         default:
           html = PatternLab.dashboard.render();
       }
 
       target.innerHTML = html;
-      layout.bindNavClicks();
+
+      this.bindNavClicks();
+      if (name === "quiz" && PatternLab.quiz.bindEvents) {
+        PatternLab.quiz.bindEvents();
+      }
     },
+
 
     bindThemeToggle() {
       const btn = document.getElementById("theme-toggle");

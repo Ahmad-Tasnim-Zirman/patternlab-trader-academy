@@ -3,7 +3,7 @@
     "": "dashboard",
     "#dashboard": "dashboard",
     "#learn": "learn",
-    "#chart-lab": "chartLab",
+    "#chart-lab": "chart-lab",
     "#profile": "profile",
     "#quiz": "quiz" // placeholder
   };

@@ -197,6 +197,12 @@
       if (name === "lesson" && PatternLab.lessonView && typeof PatternLab.lessonView.bindEvents === "function") {
         PatternLab.lessonView.bindEvents();
       }
+
+      if ((name === "chart-lab" || name === "chartLab")&&
+        PatternLab.chartLab &&
+          typeof PatternLab.chartLab.bindEvents === "function") {
+            PatternLab.chartLab.bindEvents();
+          }
     },
 
 

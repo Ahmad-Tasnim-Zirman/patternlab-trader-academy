@@ -5,7 +5,8 @@
     "#learn": "learn",
     "#chart-lab": "chart-lab",
     "#profile": "profile",
-    "#quiz": "quiz" // placeholder
+    "#quiz": "quiz",
+    "#lesson": "lesson"
   };
 
   function handleRoute() {

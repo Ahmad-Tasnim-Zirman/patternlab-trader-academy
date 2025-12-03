@@ -133,13 +133,20 @@
       }
     },
 
-      bindNavClicks() {
+    bindNavClicks() {
       const all = document.querySelectorAll("[data-view]");
       all.forEach(el => {
         el.onclick = (e) => {
           e.preventDefault();
           const view = el.getAttribute("data-view");
           if (!view) return;
+
+          if (view === "lesson" && PatternLab.lessonView && PatternLab.lessonView.setContext) {
+            const moduleId = el.getAttribute("data-module-id") || "B1";
+            const idx = parseInt(el.getAttribute("data-lesson-index") || "0", 10);
+            PatternLab.lessonView.setContext(moduleId, idx);
+          }
+
           window.location.hash = "#" + view;
         };
       });
@@ -163,14 +170,14 @@
       const target = document.getElementById("app-content");
       if (!target) return;
 
-      // Map route names to modules
       const map = {
         dashboard: PatternLab.dashboard,
         learn: PatternLab.learn,
         "chart-lab": PatternLab.chartLab,
-        chartLab: PatternLab.chartLab, // tolerate both
+        chartLab: PatternLab.chartLab,
         profile: PatternLab.profile,
-        quiz: PatternLab.quiz
+        quiz: PatternLab.quiz,
+        lesson: PatternLab.lessonView
       };
 
       let module = map[name];
@@ -185,6 +192,10 @@
 
       if (name === "quiz" && PatternLab.quiz && typeof PatternLab.quiz.bindEvents === "function") {
         PatternLab.quiz.bindEvents();
+      }
+
+      if (name === "lesson" && PatternLab.lessonView && typeof PatternLab.lessonView.bindEvents === "function") {
+        PatternLab.lessonView.bindEvents();
       }
     },
 

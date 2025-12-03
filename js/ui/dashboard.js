@@ -74,7 +74,7 @@
                     <span class="label">B1 Market basics</span><br>
                     <span class="meta">In progress · 3 of 7 lessons</span>
                   </div>
-                  <a href="#learn" class="btn btn-ghost" data-view="learn">Resume</a>
+                  <a href="#lesson" class="btn btn-ghost" data-view="lesson" data-module-id="B1" data-lesson-index="0">Resume</a>
                 </div>
                 <div class="module-item">
                   <div>

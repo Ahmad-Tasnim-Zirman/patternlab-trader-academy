@@ -15,7 +15,7 @@
         : "Locked · level 4 and B1 required";
 
       const b2Action = unlockedB2
-        ? '<button class="btn btn-primary">Enter</button>'
+        ? '<button class="btn btn-primary" data-view="lesson" data-module-id="B2" data-lesson-index="0">Enter</button>'
         : '<span class="pill">Locked</span>';
 
       return `
@@ -51,7 +51,9 @@
                     <span class="label">B1 Market structure</span><br>
                     <span class="meta">Unlocked · recommended first</span>
                   </div>
-                  <button class="btn btn-primary">Enter</button>
+                  <button class="btn btn-primary" data-view="lesson" data-module-id="B1" data-lesson-index="0">
+                    Enter
+                  </button>
                 </div>
                 <div class="module-item">
                   <div>
